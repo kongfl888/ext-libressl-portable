@@ -4,6 +4,7 @@ Modifications:
 * Removed targets for apps, tests, install, uninstall.
 * Removed extra files like unneeded target sources, Makefiles, autoconf files.
 * Disabled endian.h check for iOS as it breaks build.
+* Modified endian.h check for Windows to fix build error under msvc
 
 ===
 
