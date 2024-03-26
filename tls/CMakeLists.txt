@@ -22,12 +22,8 @@ if(WIN32)
 		compat/pread.c
 		compat/pwrite.c
 	)
-endif()
 
-if(NOT "${OPENSSLDIR}" STREQUAL "")
-	add_definitions(-DTLS_DEFAULT_CA_FILE=\"${OPENSSLDIR}/cert.pem\")
-else()
-	add_definitions(-DTLS_DEFAULT_CA_FILE=\"${CMAKE_INSTALL_PREFIX}/etc/ssl/cert.pem\")
+	set(LIBTLS_EXTRA_EXPORT ${LIBTLS_EXTRA_EXPORT} ftruncate)
 endif()
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tls.sym DESTINATION
@@ -54,13 +50,48 @@ add_library(tls $<TARGET_OBJECTS:tls_obj> $<TARGET_OBJECTS:ssl_obj>
 export_symbol(tls ${CMAKE_CURRENT_BINARY_DIR}/tls.sym)
 target_link_libraries(tls ${PLATFORM_LIBS})
 if (WIN32)
-	set(TLS_POSTFIX -${TLS_MAJOR_VERSION})
+	set(TLS_POSTFIX -${TLS_MAJOR_VERSION} PARENT_SCOPE)
 endif()
 set_target_properties(tls PROPERTIES
 	OUTPUT_NAME tls${TLS_POSTFIX}
-	ARCHIVE_OUTPUT_NAME tls${TLS_POSTFIX})
-set_target_properties(tls PROPERTIES VERSION ${TLS_VERSION}
-	SOVERSION ${TLS_MAJOR_VERSION})
+	ARCHIVE_OUTPUT_NAME tls${TLS_POSTFIX}
+	EXPORT_NAME TLS
+	VERSION ${TLS_VERSION}
+	SOVERSION ${TLS_MAJOR_VERSION}
+)
+
+target_include_directories(
+	tls
+	PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+install(
+	TARGETS tls
+	EXPORT TLS-target
+)
+
+export(
+	EXPORT TLS-target
+	FILE "${LibreSSL_BINARY_DIR}/LibreSSL-TLS.cmake"
+	NAMESPACE LibreSSL::
+)
+
+if(ENABLE_LIBRESSL_INSTALL)
+	install(
+		TARGETS tls
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	)
+	install(
+		EXPORT TLS-target
+		FILE "LibreSSL-TLS.cmake"
+		NAMESPACE LibreSSL::
+		DESTINATION "${LIBRESSL_INSTALL_CMAKEDIR}"
+	)
+endif(ENABLE_LIBRESSL_INSTALL)
 
 # build static library for regression test
 if(BUILD_SHARED_LIBS)

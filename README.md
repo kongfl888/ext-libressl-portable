@@ -1,19 +1,18 @@
-Built from https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.8.0.tar.gz
+Built from https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.8.2.tar.gz
 
 Modifications:
 * Removed targets for apps, tests, install, uninstall.
 * Removed extra files like unneeded target sources, Makefiles, autoconf files.
 * Disabled endian.h check for iOS as it breaks build.
 
-===
-
 ![LibreSSL image](https://www.libressl.org/images/libressl.jpg)
 ## Official portable version of [LibreSSL](https://www.libressl.org) ##
 
 [![Linux Build Status](https://github.com/libressl/portable/actions/workflows/linux_test.yml/badge.svg)](https://github.com/libressl/portable/actions/workflows/linux_test.yml)
 [![macOS Build Status](https://github.com/libressl/portable/actions/workflows/macos_test.yml/badge.svg)](https://github.com/libressl/portable/actions/workflows/macos_test.yml)
-[![Android_Build Status](https://github.com/libressl/portable/actions/workflows/android_test.yml/badge.svg)](https://github.com/libressl/portable/actions/workflows/android_test.yml)
-[![Cross_Build Status](https://github.com/libressl/portable/actions/workflows/cross_test.yml/badge.svg)](https://github.com/libressl/portable/actions/workflows/cross_test.yml)
+[![Android Build Status](https://github.com/libressl/portable/actions/workflows/android_test.yml/badge.svg)](https://github.com/libressl/portable/actions/workflows/android_test.yml)
+[![Cross Build Status](https://github.com/libressl/portable/actions/workflows/cross_test.yml/badge.svg)](https://github.com/libressl/portable/actions/workflows/cross_test.yml)
+[![Solaris Build Status](https://github.com/libressl/portable/actions/workflows/solaris_test.yml/badge.svg)](https://github.com/libressl/portable/actions/workflows/solaris_test.yml)
 [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/libressl.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:libressl)
 [![ASan Status](https://github.com/libressl/portable/actions/workflows/linux_test_asan.yml/badge.svg)](https://github.com/libressl/portable/actions/workflows/linux_test_asan.yml)
 
@@ -49,7 +48,7 @@ At the time of this writing, LibreSSL is known to build and work on:
 * FreeBSD (tested with 9.2 and later)
 * NetBSD (7.0 or later recommended)
 * HP-UX (11i)
-* Solaris (11 and later preferred)
+* Solaris 11 and later
 * Mac OS X (tested with 10.8 and later)
 * AIX (5.3 and later)
 
@@ -159,8 +158,12 @@ into other projects or build by itself.
 
 | Option Name | Default | Description
 | ------------ | -----: | ------
+|  LIBRESSL_SKIP_INSTALL | OFF | allows skipping install() rules.  Can be specified from command line using <br>```-DLIBRESSL_SKIP_INSTALL=ON``` |
+|  LIBRESSL_APPS | ON | allows skipping application builds. Apps are required to run tests |
+|  LIBRESSL_TESTS | ON | allows skipping of tests. Tests are only available in static builds |
 |  BUILD_SHARED_LIBS | OFF | CMake option for building shared libraries. |
 |  ENABLE_ASM | ON | builds assembly optimized rules. |
+|  ENABLE_EXTRATESTS | OFF | Enable extra tests that may be unreliable on some platforms |
 |  ENABLE_NC | OFF | Enable installing TLS-enabled nc(1) |
 |  OPENSSLDIR | Blank | Set the default openssl directory.  Can be specified from command line using <br>```-DOPENSSLDIR=<dirname>``` |
 
@@ -186,7 +189,7 @@ It will tell CMake to find LibreSSL and if found will let you use the following 
 * LibreSSL::SSL
 * LibreSSL::TLS
 
-If you for example want to use the LibreSSL TLS library in your test program, include it like so (SSL and Cryto are required by TLS and included automatically too):
+If you for example want to use the LibreSSL TLS library in your test program, include it like so (SSL and Crypto are required by TLS and included automatically too):
 
 ```cmake
 target_link_libraries(test LibreSSL::TLS)
