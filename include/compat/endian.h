@@ -21,6 +21,17 @@
 #else
 #define BYTE_ORDER BIG_ENDIAN
 #endif
+#elif defined(_WIN32) // msvc does not define __BYTE_ORDER__
+// Detect endianness for bi-endian ARM architectures
+#if defined(__ARMEL__) || defined(__AARCH64EL__)
+// Little-endian ARM (32-bit or 64-bit)
+#define BYTE_ORDER LITTLE_ENDIAN
+#elif defined(__ARMEB__) || defined(__AARCH64EB__)
+// Big-endian ARM (32-bit or 64-bit)
+#define BYTE_ORDER BIG_ENDIAN
+#else // If it's Windows but not ARM, assume x86
+#define BYTE_ORDER LITTLE_ENDIAN
+#endif
 #endif
 
 /*
