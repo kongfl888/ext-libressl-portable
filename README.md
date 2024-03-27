@@ -1,3 +1,13 @@
+Built from https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.9.0.tar.gz
+
+Modifications:
+* Removed targets for apps, tests, install, uninstall.
+* Removed extra files like unneeded target sources, Makefiles, autoconf files.
+* Disabled endian.h check for iOS as it breaks build.
+* Modified endian.h check for Windows to fix build error under msvc
+
+===
+
 ![LibreSSL image](https://www.libressl.org/images/libressl.jpg)
 
 ## Official portable version of [LibreSSL](https://www.libressl.org)
