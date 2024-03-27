@@ -1,4 +1,4 @@
-#if defined(__CET__) && !defined(__MINGW32__)
+#if defined(__CET__)
 #include <cet.h>
 #else
 #define _CET_ENDBR
@@ -640,7 +640,6 @@ _CET_ENDBR
 	xorq	%r13,%r9
 	shrq	$8,%r8
 	movzbq	%r12b,%r12
-	movl	-4(%rdi),%edx
 	shrq	$8,%r9
 	xorq	-128(%rbp,%rbx,8),%r8
 	shlq	$56,%r10

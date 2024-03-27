@@ -1,4 +1,4 @@
-#if defined(__CET__) && !defined(__MINGW32__)
+#if defined(__CET__)
 #include <cet.h>
 #else
 #define _CET_ENDBR

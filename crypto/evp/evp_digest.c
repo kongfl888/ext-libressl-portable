@@ -1,4 +1,4 @@
-/* $OpenBSD: digest.c,v 1.38 2023/07/07 19:37:53 beck Exp $ */
+/* $OpenBSD: evp_digest.c,v 1.12 2024/03/02 09:59:56 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -118,16 +118,12 @@
 #include <openssl/evp.h>
 #include <openssl/objects.h>
 
-#ifndef OPENSSL_NO_ENGINE
-#include <openssl/engine.h>
-#endif
-
 #include "evp_local.h"
 
 int
 EVP_DigestInit(EVP_MD_CTX *ctx, const EVP_MD *type)
 {
-	EVP_MD_CTX_init(ctx);
+	EVP_MD_CTX_legacy_clear(ctx);
 	return EVP_DigestInit_ex(ctx, type, NULL);
 }
 
@@ -136,49 +132,6 @@ EVP_DigestInit_ex(EVP_MD_CTX *ctx, const EVP_MD *type, ENGINE *impl)
 {
 	EVP_MD_CTX_clear_flags(ctx, EVP_MD_CTX_FLAG_CLEANED);
 
-#ifndef OPENSSL_NO_ENGINE
-	/* Whether it's nice or not, "Inits" can be used on "Final"'d contexts
-	 * so this context may already have an ENGINE! Try to avoid releasing
-	 * the previous handle, re-querying for an ENGINE, and having a
-	 * reinitialisation, when it may all be unnecessary. */
-	if (ctx->engine && ctx->digest && (!type ||
-	    (type && (type->type == ctx->digest->type))))
-		goto skip_to_init;
-	if (type) {
-		/* Ensure an ENGINE left lying around from last time is cleared
-		 * (the previous check attempted to avoid this if the same
-		 * ENGINE and EVP_MD could be used). */
-		ENGINE_finish(ctx->engine);
-		if (impl != NULL) {
-			if (!ENGINE_init(impl)) {
-				EVPerror(EVP_R_INITIALIZATION_ERROR);
-				return 0;
-			}
-		} else
-			/* Ask if an ENGINE is reserved for this job */
-			impl = ENGINE_get_digest_engine(type->type);
-		if (impl != NULL) {
-			/* There's an ENGINE for this job ... (apparently) */
-			const EVP_MD *d = ENGINE_get_digest(impl, type->type);
-			if (d == NULL) {
-				/* Same comment from evp_enc.c */
-				EVPerror(EVP_R_INITIALIZATION_ERROR);
-				ENGINE_finish(impl);
-				return 0;
-			}
-			/* We'll use the ENGINE's private digest definition */
-			type = d;
-			/* Store the ENGINE functional reference so we know
-			 * 'type' came from an ENGINE and we need to release
-			 * it when done. */
-			ctx->engine = impl;
-		} else
-			ctx->engine = NULL;
-	} else if (!ctx->digest) {
-		EVPerror(EVP_R_NO_DIGEST_SET);
-		return 0;
-	}
-#endif
 	if (ctx->digest != type) {
 		if (ctx->digest && ctx->digest->ctx_size && ctx->md_data &&
 		    !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_REUSE)) {
@@ -197,9 +150,6 @@ EVP_DigestInit_ex(EVP_MD_CTX *ctx, const EVP_MD *type, ENGINE *impl)
 			}
 		}
 	}
-#ifndef OPENSSL_NO_ENGINE
-skip_to_init:
-#endif
 	if (ctx->pctx) {
 		int r;
 		r = EVP_PKEY_CTX_ctrl(ctx->pctx, -1, EVP_PKEY_OP_TYPE_SIG,
@@ -251,9 +201,100 @@ EVP_DigestFinal_ex(EVP_MD_CTX *ctx, unsigned char *md, unsigned int *size)
 }
 
 int
+EVP_Digest(const void *data, size_t count,
+    unsigned char *md, unsigned int *size, const EVP_MD *type, ENGINE *impl)
+{
+	EVP_MD_CTX ctx;
+	int ret;
+
+	EVP_MD_CTX_legacy_clear(&ctx);
+	EVP_MD_CTX_set_flags(&ctx, EVP_MD_CTX_FLAG_ONESHOT);
+	ret = EVP_DigestInit_ex(&ctx, type, NULL) &&
+	    EVP_DigestUpdate(&ctx, data, count) &&
+	    EVP_DigestFinal_ex(&ctx, md, size);
+	EVP_MD_CTX_cleanup(&ctx);
+
+	return ret;
+}
+
+EVP_MD_CTX *
+EVP_MD_CTX_new(void)
+{
+	return calloc(1, sizeof(EVP_MD_CTX));
+}
+
+void
+EVP_MD_CTX_free(EVP_MD_CTX *ctx)
+{
+	if (ctx == NULL)
+		return;
+
+	EVP_MD_CTX_cleanup(ctx);
+
+	free(ctx);
+}
+
+EVP_MD_CTX *
+EVP_MD_CTX_create(void)
+{
+	return EVP_MD_CTX_new();
+}
+
+void
+EVP_MD_CTX_destroy(EVP_MD_CTX *ctx)
+{
+	EVP_MD_CTX_free(ctx);
+}
+
+void
+EVP_MD_CTX_legacy_clear(EVP_MD_CTX *ctx)
+{
+	memset(ctx, 0, sizeof(*ctx));
+}
+
+int
+EVP_MD_CTX_init(EVP_MD_CTX *ctx)
+{
+	return EVP_MD_CTX_cleanup(ctx);
+}
+
+int
+EVP_MD_CTX_reset(EVP_MD_CTX *ctx)
+{
+	return EVP_MD_CTX_cleanup(ctx);
+}
+
+int
+EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx)
+{
+	if (ctx == NULL)
+		return 1;
+
+	/*
+	 * Don't assume ctx->md_data was cleaned in EVP_Digest_Final,
+	 * because sometimes only copies of the context are ever finalised.
+	 */
+	if (ctx->digest && ctx->digest->cleanup &&
+	    !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_CLEANED))
+		ctx->digest->cleanup(ctx);
+	if (ctx->digest && ctx->digest->ctx_size && ctx->md_data &&
+	    !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_REUSE))
+		freezero(ctx->md_data, ctx->digest->ctx_size);
+	/*
+	 * If EVP_MD_CTX_FLAG_KEEP_PKEY_CTX is set, EVP_MD_CTX_set_pkey() was
+	 * called and its strange API contract implies we don't own ctx->pctx.
+	 */
+	if (!EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX))
+		EVP_PKEY_CTX_free(ctx->pctx);
+	memset(ctx, 0, sizeof(*ctx));
+
+	return 1;
+}
+
+int
 EVP_MD_CTX_copy(EVP_MD_CTX *out, const EVP_MD_CTX *in)
 {
-	EVP_MD_CTX_init(out);
+	EVP_MD_CTX_legacy_clear(out);
 	return EVP_MD_CTX_copy_ex(out, in);
 }
 
@@ -266,13 +307,6 @@ EVP_MD_CTX_copy_ex(EVP_MD_CTX *out, const EVP_MD_CTX *in)
 		EVPerror(EVP_R_INPUT_NOT_INITIALIZED);
 		return 0;
 	}
-#ifndef OPENSSL_NO_ENGINE
-	/* Make sure it's safe to copy a digest context using an ENGINE */
-	if (in->engine && !ENGINE_init(in->engine)) {
-		EVPerror(ERR_R_ENGINE_LIB);
-		return 0;
-	}
-#endif
 
 	if (out->digest == in->digest) {
 		tmp_buf = out->md_data;
@@ -320,92 +354,6 @@ EVP_MD_CTX_copy_ex(EVP_MD_CTX *out, const EVP_MD_CTX *in)
 }
 
 int
-EVP_Digest(const void *data, size_t count,
-    unsigned char *md, unsigned int *size, const EVP_MD *type, ENGINE *impl)
-{
-	EVP_MD_CTX ctx;
-	int ret;
-
-	EVP_MD_CTX_init(&ctx);
-	EVP_MD_CTX_set_flags(&ctx, EVP_MD_CTX_FLAG_ONESHOT);
-	ret = EVP_DigestInit_ex(&ctx, type, impl) &&
-	    EVP_DigestUpdate(&ctx, data, count) &&
-	    EVP_DigestFinal_ex(&ctx, md, size);
-	EVP_MD_CTX_cleanup(&ctx);
-
-	return ret;
-}
-
-EVP_MD_CTX *
-EVP_MD_CTX_new(void)
-{
-	return calloc(1, sizeof(EVP_MD_CTX));
-}
-
-void
-EVP_MD_CTX_free(EVP_MD_CTX *ctx)
-{
-	if (ctx == NULL)
-		return;
-
-	EVP_MD_CTX_cleanup(ctx);
-
-	free(ctx);
-}
-
-void
-EVP_MD_CTX_init(EVP_MD_CTX *ctx)
-{
-	memset(ctx, 0, sizeof(*ctx));
-}
-
-int
-EVP_MD_CTX_reset(EVP_MD_CTX *ctx)
-{
-	return EVP_MD_CTX_cleanup(ctx);
-}
-
-EVP_MD_CTX *
-EVP_MD_CTX_create(void)
-{
-	return EVP_MD_CTX_new();
-}
-
-void
-EVP_MD_CTX_destroy(EVP_MD_CTX *ctx)
-{
-	EVP_MD_CTX_free(ctx);
-}
-
-/* This call frees resources associated with the context */
-int
-EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx)
-{
-	/*
-	 * Don't assume ctx->md_data was cleaned in EVP_Digest_Final,
-	 * because sometimes only copies of the context are ever finalised.
-	 */
-	if (ctx->digest && ctx->digest->cleanup &&
-	    !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_CLEANED))
-		ctx->digest->cleanup(ctx);
-	if (ctx->digest && ctx->digest->ctx_size && ctx->md_data &&
-	    !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_REUSE))
-		freezero(ctx->md_data, ctx->digest->ctx_size);
-	/*
-	 * If EVP_MD_CTX_FLAG_KEEP_PKEY_CTX is set, EVP_MD_CTX_set_pkey() was
-	 * called and its strange API contract implies we don't own ctx->pctx.
-	 */
-	if (!EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX))
-		EVP_PKEY_CTX_free(ctx->pctx);
-#ifndef OPENSSL_NO_ENGINE
-	ENGINE_finish(ctx->engine);
-#endif
-	memset(ctx, 0, sizeof(*ctx));
-
-	return 1;
-}
-
-int
 EVP_MD_CTX_ctrl(EVP_MD_CTX *ctx, int type, int arg, void *ptr)
 {
 	int ret;
@@ -426,4 +374,99 @@ EVP_MD_CTX_ctrl(EVP_MD_CTX *ctx, int type, int arg, void *ptr)
 		return 0;
 	}
 	return ret;
+}
+
+const EVP_MD *
+EVP_MD_CTX_md(const EVP_MD_CTX *ctx)
+{
+	if (!ctx)
+		return NULL;
+	return ctx->digest;
+}
+
+void
+EVP_MD_CTX_clear_flags(EVP_MD_CTX *ctx, int flags)
+{
+	ctx->flags &= ~flags;
+}
+
+void
+EVP_MD_CTX_set_flags(EVP_MD_CTX *ctx, int flags)
+{
+	ctx->flags |= flags;
+}
+
+int
+EVP_MD_CTX_test_flags(const EVP_MD_CTX *ctx, int flags)
+{
+	return (ctx->flags & flags);
+}
+
+void *
+EVP_MD_CTX_md_data(const EVP_MD_CTX *ctx)
+{
+	return ctx->md_data;
+}
+
+EVP_PKEY_CTX *
+EVP_MD_CTX_pkey_ctx(const EVP_MD_CTX *ctx)
+{
+	return ctx->pctx;
+}
+
+void
+EVP_MD_CTX_set_pkey_ctx(EVP_MD_CTX *ctx, EVP_PKEY_CTX *pctx)
+{
+	if (EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX)) {
+		EVP_MD_CTX_clear_flags(ctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX);
+	} else {
+		EVP_PKEY_CTX_free(ctx->pctx);
+	}
+
+	ctx->pctx = pctx;
+
+	if (pctx != NULL) {
+		/*
+		 * For unclear reasons it was decided that the caller keeps
+		 * ownership of pctx. So a flag was invented to make sure we
+		 * don't free it in EVP_MD_CTX_cleanup(). We also need to
+		 * unset it in EVP_MD_CTX_copy_ex(). Fortunately, the flag
+		 * isn't public...
+		 */
+		EVP_MD_CTX_set_flags(ctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX);
+	}
+}
+
+int
+EVP_MD_type(const EVP_MD *md)
+{
+	return md->type;
+}
+
+int
+EVP_MD_pkey_type(const EVP_MD *md)
+{
+	return md->pkey_type;
+}
+
+int
+EVP_MD_size(const EVP_MD *md)
+{
+	if (!md) {
+		EVPerror(EVP_R_MESSAGE_DIGEST_IS_NULL);
+		return -1;
+	}
+	return md->md_size;
+}
+
+unsigned long
+EVP_MD_flags(const EVP_MD *md)
+{
+	return md->flags;
+}
+
+int
+EVP_MD_block_size(const EVP_MD *md)
+{
+	return md->block_size;
 }

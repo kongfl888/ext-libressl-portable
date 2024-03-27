@@ -1,4 +1,4 @@
-/* $OpenBSD: ssl_algs.c,v 1.32 2023/07/08 16:40:13 beck Exp $ */
+/* $OpenBSD: lhash_local.h,v 1.1 2024/03/02 11:11:11 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -56,70 +56,50 @@
  * [including the GNU Public Licence.]
  */
 
-#include <stdio.h>
+/* Header for dynamic hash table routines
+ * Author - Eric Young
+ */
 
-#include <openssl/lhash.h>
-#include <openssl/objects.h>
 #include <openssl/opensslconf.h>
 
-#include "ssl_local.h"
+#ifndef HEADER_LHASH_LOCAL_H
+#define HEADER_LHASH_LOCAL_H
 
-int
-SSL_library_init(void)
-{
+typedef struct lhash_node_st {
+	void *data;
+	struct lhash_node_st *next;
+#ifndef OPENSSL_NO_HASH_COMP
+	unsigned long hash;
+#endif
+} LHASH_NODE;
 
-#ifndef OPENSSL_NO_DES
-	EVP_add_cipher(EVP_des_cbc());
-	EVP_add_cipher(EVP_des_ede3_cbc());
-#endif
-#ifndef OPENSSL_NO_RC4
-	EVP_add_cipher(EVP_rc4());
-#if !defined(OPENSSL_NO_MD5) && (defined(__x86_64) || defined(__x86_64__))
-	EVP_add_cipher(EVP_rc4_hmac_md5());
-#endif
-#endif
-#ifndef OPENSSL_NO_RC2
-	EVP_add_cipher(EVP_rc2_cbc());
-	/* Not actually used for SSL/TLS but this makes PKCS#12 work
-	 * if an application only calls SSL_library_init().
-	 */
-	EVP_add_cipher(EVP_rc2_40_cbc());
-#endif
-	EVP_add_cipher(EVP_aes_128_cbc());
-	EVP_add_cipher(EVP_aes_192_cbc());
-	EVP_add_cipher(EVP_aes_256_cbc());
-	EVP_add_cipher(EVP_aes_128_gcm());
-	EVP_add_cipher(EVP_aes_256_gcm());
-	EVP_add_cipher(EVP_aes_128_cbc_hmac_sha1());
-	EVP_add_cipher(EVP_aes_256_cbc_hmac_sha1());
-#ifndef OPENSSL_NO_CAMELLIA
-	EVP_add_cipher(EVP_camellia_128_cbc());
-	EVP_add_cipher(EVP_camellia_256_cbc());
-#endif
-#ifndef OPENSSL_NO_GOST
-	EVP_add_cipher(EVP_gost2814789_cfb64());
-	EVP_add_cipher(EVP_gost2814789_cnt());
-#endif
+struct lhash_st {
+	LHASH_NODE **b;
+	LHASH_COMP_FN_TYPE comp;
+	LHASH_HASH_FN_TYPE hash;
+	unsigned int num_nodes;
+	unsigned int num_alloc_nodes;
+	unsigned int p;
+	unsigned int pmax;
+	unsigned long up_load; /* load times 256 */
+	unsigned long down_load; /* load times 256 */
+	unsigned long num_items;
 
-	EVP_add_digest(EVP_md5());
-	EVP_add_digest(EVP_md5_sha1());
-	EVP_add_digest_alias(SN_md5, "ssl2-md5");
-	EVP_add_digest_alias(SN_md5, "ssl3-md5");
+	unsigned long num_expands;
+	unsigned long num_expand_reallocs;
+	unsigned long num_contracts;
+	unsigned long num_contract_reallocs;
+	unsigned long num_hash_calls;
+	unsigned long num_comp_calls;
+	unsigned long num_insert;
+	unsigned long num_replace;
+	unsigned long num_delete;
+	unsigned long num_no_delete;
+	unsigned long num_retrieve;
+	unsigned long num_retrieve_miss;
+	unsigned long num_hash_comps;
 
-	EVP_add_digest(EVP_sha1()); /* RSA with sha1 */
-	EVP_add_digest_alias(SN_sha1, "ssl3-sha1");
-	EVP_add_digest_alias(SN_sha1WithRSAEncryption, SN_sha1WithRSA);
-	EVP_add_digest(EVP_sha224());
-	EVP_add_digest(EVP_sha256());
-	EVP_add_digest(EVP_sha384());
-	EVP_add_digest(EVP_sha512());
-#ifndef OPENSSL_NO_GOST
-	EVP_add_digest(EVP_gostr341194());
-	EVP_add_digest(EVP_gost2814789imit());
-	EVP_add_digest(EVP_streebog256());
-	EVP_add_digest(EVP_streebog512());
+	int error;
+} /* _LHASH */;
+
 #endif
-
-	return (1);
-}
-LSSL_ALIAS(SSL_library_init);
