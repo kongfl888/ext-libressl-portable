@@ -428,9 +428,6 @@ add_subdirectory(include)
 add_subdirectory(crypto)
 add_subdirectory(ssl)
 add_subdirectory(tls)
-if(NOT MSVC)
-	add_subdirectory(man)
-endif()
 # Tests require the openssl executable and are unavailable when building shared libraries
 
 if (BUILD_APPLE_XCFRAMEWORK)
