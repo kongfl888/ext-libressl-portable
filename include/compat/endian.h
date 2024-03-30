@@ -13,14 +13,14 @@
 #define PDP_ENDIAN 3412
 
 /*
- * Use architecture defines to determine endianness.
+ * Use GCC compiler defines to determine endianness.
  */
-#ifdef __ARMEL__) || defined(__AARCH64EL__)
-  #define BYTE_ORDER LITTLE_ENDIAN  // Little-endian ARM
-#elif defined(__ARMEB__) || defined(__AARCH64EB__)
-  #define BYTE_ORDER BIG_ENDIAN     // Big-endian ARM
+#if defined(__BYTE_ORDER__)
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define BYTE_ORDER LITTLE_ENDIAN
 #else
-  #define BYTE_ORDER LITTLE_ENDIAN  // Assume little-endian for x86 on Windows
+#define BYTE_ORDER BIG_ENDIAN
+#endif
 #endif
 
 /*

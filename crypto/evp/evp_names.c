@@ -1852,6 +1852,9 @@ EVP_get_cipherbyname(const char *name)
 	if (!OPENSSL_init_crypto(0, NULL))
 		return NULL;
 
+	if (name == NULL)
+		return NULL;
+
 	if ((cipher = bsearch(name, cipher_names, N_CIPHER_NAMES,
 	    sizeof(*cipher), cipher_cmp)) == NULL)
 		return NULL;
@@ -1871,6 +1874,9 @@ EVP_get_digestbyname(const char *name)
 	const struct digest_name *digest;
 
 	if (!OPENSSL_init_crypto(0, NULL))
+		return NULL;
+
+	if (name == NULL)
 		return NULL;
 
 	if ((digest = bsearch(name, digest_names, N_DIGEST_NAMES,

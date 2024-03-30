@@ -1,4 +1,4 @@
-Built from https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.9.0.tar.gz
+Built from https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.9.1.tar.gz
 
 Modifications:
 * Removed targets for apps, tests, install, uninstall.
