@@ -1,3 +1,9 @@
+#if defined(__CET__)
+#include <cet.h>
+#else
+#define _CET_ENDBR
+#endif
+
 #include "x86_arch.h"
 .text	
 
@@ -6,7 +12,7 @@
 
 .p2align	4
 _Camellia_EncryptBlock:
-	
+_CET_ENDBR
 	movl	$128,%eax
 	subl	%edi,%eax
 	movl	$3,%edi
@@ -19,7 +25,7 @@ _Camellia_EncryptBlock:
 .p2align	4
 L$enc_rounds:
 _Camellia_EncryptBlock_Rounds:
-	
+_CET_ENDBR
 	pushq	%rbx
 	pushq	%rbp
 	pushq	%r13
@@ -68,7 +74,7 @@ L$enc_epilogue:
 
 .p2align	4
 _x86_64_Camellia_encrypt:
-	
+_CET_ENDBR
 	xorl	0(%r14),%r9d
 	xorl	4(%r14),%r8d
 	xorl	8(%r14),%r11d
@@ -278,7 +284,7 @@ L$edone:
 
 .p2align	4
 _Camellia_DecryptBlock:
-	
+_CET_ENDBR
 	movl	$128,%eax
 	subl	%edi,%eax
 	movl	$3,%edi
@@ -291,7 +297,7 @@ _Camellia_DecryptBlock:
 .p2align	4
 L$dec_rounds:
 _Camellia_DecryptBlock_Rounds:
-	
+_CET_ENDBR
 	pushq	%rbx
 	pushq	%rbp
 	pushq	%r13
@@ -340,7 +346,7 @@ L$dec_epilogue:
 
 .p2align	4
 _x86_64_Camellia_decrypt:
-	
+_CET_ENDBR
 	xorl	0(%r14),%r9d
 	xorl	4(%r14),%r8d
 	xorl	8(%r14),%r11d
@@ -549,7 +555,7 @@ L$ddone:
 
 .p2align	4
 _Camellia_Ekeygen:
-	
+_CET_ENDBR
 	pushq	%rbx
 	pushq	%rbp
 	pushq	%r13
@@ -1615,7 +1621,7 @@ L$Camellia_SBOX:
 
 .p2align	4
 _Camellia_cbc_encrypt:
-	
+_CET_ENDBR
 	cmpq	$0,%rdx
 	je	L$cbc_abort
 	pushq	%rbx

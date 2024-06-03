@@ -1,10 +1,16 @@
+#if defined(__CET__)
+#include <cet.h>
+#else
+#define _CET_ENDBR
+#endif
+
 #include "x86_arch.h"
 .text	
 .globl	_aesni_encrypt
 
 .p2align	4
 _aesni_encrypt:
-	
+_CET_ENDBR
 	movups	(%rdi),%xmm2
 	movl	240(%rdx),%eax
 	movups	(%rdx),%xmm0
@@ -26,7 +32,7 @@ L$oop_enc1_1:
 
 .p2align	4
 _aesni_decrypt:
-	
+_CET_ENDBR
 	movups	(%rdi),%xmm2
 	movl	240(%rdx),%eax
 	movups	(%rdx),%xmm0
@@ -46,7 +52,7 @@ L$oop_dec1_2:
 
 .p2align	4
 _aesni_encrypt3:
-	
+_CET_ENDBR
 	movups	(%rcx),%xmm0
 	shrl	$1,%eax
 	movups	16(%rcx),%xmm1
@@ -80,7 +86,7 @@ L$enc_loop3:
 
 .p2align	4
 _aesni_decrypt3:
-	
+_CET_ENDBR
 	movups	(%rcx),%xmm0
 	shrl	$1,%eax
 	movups	16(%rcx),%xmm1
@@ -114,7 +120,7 @@ L$dec_loop3:
 
 .p2align	4
 _aesni_encrypt4:
-	
+_CET_ENDBR
 	movups	(%rcx),%xmm0
 	shrl	$1,%eax
 	movups	16(%rcx),%xmm1
@@ -153,7 +159,7 @@ L$enc_loop4:
 
 .p2align	4
 _aesni_decrypt4:
-	
+_CET_ENDBR
 	movups	(%rcx),%xmm0
 	shrl	$1,%eax
 	movups	16(%rcx),%xmm1
@@ -192,7 +198,7 @@ L$dec_loop4:
 
 .p2align	4
 _aesni_encrypt6:
-	
+_CET_ENDBR
 	movups	(%rcx),%xmm0
 	shrl	$1,%eax
 	movups	16(%rcx),%xmm1
@@ -250,7 +256,7 @@ L$enc_loop6_enter:
 
 .p2align	4
 _aesni_decrypt6:
-	
+_CET_ENDBR
 	movups	(%rcx),%xmm0
 	shrl	$1,%eax
 	movups	16(%rcx),%xmm1
@@ -308,7 +314,7 @@ L$dec_loop6_enter:
 
 .p2align	4
 _aesni_encrypt8:
-	
+_CET_ENDBR
 	movups	(%rcx),%xmm0
 	shrl	$1,%eax
 	movups	16(%rcx),%xmm1
@@ -379,7 +385,7 @@ L$enc_loop8_enter:
 
 .p2align	4
 _aesni_decrypt8:
-	
+_CET_ENDBR
 	movups	(%rcx),%xmm0
 	shrl	$1,%eax
 	movups	16(%rcx),%xmm1
@@ -451,7 +457,7 @@ L$dec_loop8_enter:
 
 .p2align	4
 _aesni_ecb_encrypt:
-	
+_CET_ENDBR
 	andq	$-16,%rdx
 	jz	L$ecb_ret
 
@@ -754,7 +760,7 @@ L$ecb_ret:
 
 .p2align	4
 _aesni_ccm64_encrypt_blocks:
-	
+_CET_ENDBR
 	movl	240(%rcx),%eax
 	movdqu	(%r8),%xmm9
 	movdqa	L$increment64(%rip),%xmm6
@@ -812,6 +818,7 @@ L$ccm64_enc2_loop:
 
 .p2align	4
 _aesni_ccm64_decrypt_blocks:
+_CET_ENDBR
 	movl	240(%rcx),%eax
 	movups	(%r8),%xmm9
 	movdqu	(%r9),%xmm3
@@ -899,6 +906,7 @@ L$oop_enc1_6:
 
 .p2align	4
 _aesni_ctr32_encrypt_blocks:
+_CET_ENDBR
 	leaq	(%rsp),%rax
 	pushq	%rbp
 	subq	$32,%rsp
@@ -1154,6 +1162,7 @@ L$ctr32_ret:
 
 .p2align	4
 _aesni_xts_encrypt:
+_CET_ENDBR
 	leaq	(%rsp),%rax
 	pushq	%rbp
 	subq	$96,%rsp
@@ -1554,6 +1563,7 @@ L$xts_enc_epilogue:
 
 .p2align	4
 _aesni_xts_decrypt:
+_CET_ENDBR
 	leaq	(%rsp),%rax
 	pushq	%rbp
 	subq	$96,%rsp
@@ -1998,6 +2008,7 @@ L$xts_dec_epilogue:
 
 .p2align	4
 _aesni_cbc_encrypt:
+_CET_ENDBR
 	testq	%rdx,%rdx
 	jz	L$cbc_ret
 
@@ -2329,7 +2340,7 @@ L$cbc_ret:
 
 .p2align	4
 _aesni_set_decrypt_key:
-	
+_CET_ENDBR
 	subq	$8,%rsp
 	call	__aesni_set_encrypt_key
 	shll	$4,%esi
@@ -2368,7 +2379,7 @@ L$SEH_end_set_decrypt_key:
 
 .p2align	4
 _aesni_set_encrypt_key:
-	
+_CET_ENDBR
 __aesni_set_encrypt_key:
 	subq	$8,%rsp
 	movq	$-1,%rax

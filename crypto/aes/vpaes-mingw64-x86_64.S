@@ -1,3 +1,9 @@
+#if defined(__CET__)
+#include <cet.h>
+#else
+#define _CET_ENDBR
+#endif
+
 #include "x86_arch.h"
 .text	
 
@@ -19,7 +25,7 @@
 .def	_vpaes_encrypt_core;	.scl 3;	.type 32;	.endef
 .p2align	4
 _vpaes_encrypt_core:
-	endbr64
+_CET_ENDBR
 	movq	%rdx,%r9
 	movq	$16,%r11
 	movl	240(%rdx),%eax
@@ -110,7 +116,7 @@ _vpaes_encrypt_core:
 .def	_vpaes_decrypt_core;	.scl 3;	.type 32;	.endef
 .p2align	4
 _vpaes_decrypt_core:
-	endbr64
+_CET_ENDBR
 	movq	%rdx,%r9
 	movl	240(%rdx),%eax
 	movdqa	%xmm9,%xmm1
@@ -218,7 +224,7 @@ _vpaes_decrypt_core:
 .def	_vpaes_schedule_core;	.scl 3;	.type 32;	.endef
 .p2align	4
 _vpaes_schedule_core:
-	endbr64
+_CET_ENDBR
 
 
 
@@ -404,7 +410,7 @@ _vpaes_schedule_core:
 .def	_vpaes_schedule_192_smear;	.scl 3;	.type 32;	.endef
 .p2align	4
 _vpaes_schedule_192_smear:
-	endbr64
+_CET_ENDBR
 	pshufd	$128,%xmm6,%xmm0
 	pxor	%xmm0,%xmm6
 	pshufd	$254,%xmm7,%xmm0
@@ -436,7 +442,7 @@ _vpaes_schedule_192_smear:
 .def	_vpaes_schedule_round;	.scl 3;	.type 32;	.endef
 .p2align	4
 _vpaes_schedule_round:
-	endbr64
+_CET_ENDBR
 
 	pxor	%xmm1,%xmm1
 .byte	102,65,15,58,15,200,15
@@ -504,7 +510,7 @@ _vpaes_schedule_low_round:
 .def	_vpaes_schedule_transform;	.scl 3;	.type 32;	.endef
 .p2align	4
 _vpaes_schedule_transform:
-	endbr64
+_CET_ENDBR
 	movdqa	%xmm9,%xmm1
 	pandn	%xmm0,%xmm1
 	psrld	$4,%xmm1
@@ -543,7 +549,7 @@ _vpaes_schedule_transform:
 .def	_vpaes_schedule_mangle;	.scl 3;	.type 32;	.endef
 .p2align	4
 _vpaes_schedule_mangle:
-	endbr64
+_CET_ENDBR
 	movdqa	%xmm0,%xmm4
 	movdqa	.Lk_mc_forward(%rip),%xmm5
 	testq	%rcx,%rcx
@@ -625,7 +631,7 @@ vpaes_set_encrypt_key:
 	movq	%rdx,%rsi
 	movq	%r8,%rdx
 
-	endbr64
+_CET_ENDBR
 	leaq	-184(%rsp),%rsp
 	movaps	%xmm6,16(%rsp)
 	movaps	%xmm7,32(%rsp)
@@ -676,7 +682,7 @@ vpaes_set_decrypt_key:
 	movq	%rdx,%rsi
 	movq	%r8,%rdx
 
-	endbr64
+_CET_ENDBR
 	leaq	-184(%rsp),%rsp
 	movaps	%xmm6,16(%rsp)
 	movaps	%xmm7,32(%rsp)
@@ -732,7 +738,7 @@ vpaes_encrypt:
 	movq	%rdx,%rsi
 	movq	%r8,%rdx
 
-	endbr64
+_CET_ENDBR
 	leaq	-184(%rsp),%rsp
 	movaps	%xmm6,16(%rsp)
 	movaps	%xmm7,32(%rsp)
@@ -778,7 +784,7 @@ vpaes_decrypt:
 	movq	%rdx,%rsi
 	movq	%r8,%rdx
 
-	endbr64
+_CET_ENDBR
 	leaq	-184(%rsp),%rsp
 	movaps	%xmm6,16(%rsp)
 	movaps	%xmm7,32(%rsp)
@@ -826,7 +832,7 @@ vpaes_cbc_encrypt:
 	movq	40(%rsp),%r8
 	movq	48(%rsp),%r9
 
-	endbr64
+_CET_ENDBR
 	xchgq	%rcx,%rdx
 	subq	$16,%rcx
 	jc	.Lcbc_abort
@@ -898,7 +904,7 @@ vpaes_cbc_encrypt:
 .def	_vpaes_preheat;	.scl 3;	.type 32;	.endef
 .p2align	4
 _vpaes_preheat:
-	endbr64
+_CET_ENDBR
 	leaq	.Lk_s0F(%rip),%r10
 	movdqa	-32(%r10),%xmm10
 	movdqa	-16(%r10),%xmm11
@@ -1018,7 +1024,7 @@ _vpaes_consts:
 .def	se_handler;	.scl 3;	.type 32;	.endef
 .p2align	4
 se_handler:
-	endbr64
+_CET_ENDBR
 	pushq	%rsi
 	pushq	%rdi
 	pushq	%rbx

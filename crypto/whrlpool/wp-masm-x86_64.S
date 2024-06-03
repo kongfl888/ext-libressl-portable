@@ -1,26 +1,33 @@
 ; 1 "crypto/whrlpool/wp-masm-x86_64.S.tmp"
 ; 1 "<built-in>" 1
 ; 1 "<built-in>" 3
-; 343 "<built-in>" 3
+; 371 "<built-in>" 3
 ; 1 "<command line>" 1
 ; 1 "<built-in>" 2
 ; 1 "crypto/whrlpool/wp-masm-x86_64.S.tmp" 2
 OPTION	DOTNAME
 
+
+
+
+
+
+
 ; 1 "./crypto/x86_arch.h" 1
 
 
 ; 16 "./crypto/x86_arch.h"
+   
 
 
 
 
 
-
-
+   
 
 
 ; 40 "./crypto/x86_arch.h"
+   
 
 
 
@@ -65,8 +72,7 @@ OPTION	DOTNAME
 
 
 
-
-; 3 "crypto/whrlpool/wp-masm-x86_64.S.tmp" 2
+; 9 "crypto/whrlpool/wp-masm-x86_64.S.tmp" 2
 .text$	SEGMENT ALIGN(64) 'CODE'
 
 PUBLIC	whirlpool_block
@@ -82,7 +88,7 @@ $L$SEH_begin_whirlpool_block::
 	mov	rdx,r8
 
 
-	endbr64
+
 	push	rbx
 	push	rbp
 	push	r12
@@ -670,7 +676,7 @@ $L$SEH_end_whirlpool_block::
 whirlpool_block	ENDP
 
 .text$	ENDS
-.rdata	SEGMENT READONLY ALIGN(8)
+.rdata	SEGMENT READONLY ALIGN(64)
 ALIGN	64
 
 $L$table::

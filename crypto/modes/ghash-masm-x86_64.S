@@ -1,26 +1,33 @@
 ; 1 "crypto/modes/ghash-masm-x86_64.S.tmp"
 ; 1 "<built-in>" 1
 ; 1 "<built-in>" 3
-; 343 "<built-in>" 3
+; 371 "<built-in>" 3
 ; 1 "<command line>" 1
 ; 1 "<built-in>" 2
 ; 1 "crypto/modes/ghash-masm-x86_64.S.tmp" 2
 OPTION	DOTNAME
 
+
+
+
+
+
+
 ; 1 "./crypto/x86_arch.h" 1
 
 
 ; 16 "./crypto/x86_arch.h"
+   
 
 
 
 
 
-
-
+   
 
 
 ; 40 "./crypto/x86_arch.h"
+   
 
 
 
@@ -65,8 +72,7 @@ OPTION	DOTNAME
 
 
 
-
-; 3 "crypto/modes/ghash-masm-x86_64.S.tmp" 2
+; 9 "crypto/modes/ghash-masm-x86_64.S.tmp" 2
 .text$	SEGMENT ALIGN(64) 'CODE'
 
 PUBLIC	gcm_gmult_4bit
@@ -79,6 +85,7 @@ gcm_gmult_4bit	PROC PUBLIC
 $L$SEH_begin_gcm_gmult_4bit::
 	mov	rdi,rcx
 	mov	rsi,rdx
+
 
 
 	push	rbx
@@ -180,6 +187,7 @@ $L$SEH_begin_gcm_ghash_4bit::
 	mov	rsi,rdx
 	mov	rdx,r8
 	mov	rcx,r9
+
 
 
 	push	rbx
@@ -703,7 +711,6 @@ $L$outer_loop::
 	xor	r9,r13
 	shr	r8,8
 	movzx	r12,r12b
-	mov	edx,DWORD PTR[((-4))+rdi]
 	shr	r9,8
 	xor	r8,QWORD PTR[((-128))+rbx*8+rbp]
 	shl	r10,56
@@ -751,7 +758,7 @@ PUBLIC	gcm_init_clmul
 
 ALIGN	16
 gcm_init_clmul	PROC PUBLIC
-	endbr64
+
 	movdqu	xmm2,XMMWORD PTR[rdx]
 	pshufd	xmm2,xmm2,78
 
@@ -817,7 +824,7 @@ PUBLIC	gcm_gmult_clmul
 
 ALIGN	16
 gcm_gmult_clmul	PROC PUBLIC
-	endbr64
+
 	movdqu	xmm0,XMMWORD PTR[rcx]
 	movdqa	xmm5,XMMWORD PTR[$L$bswap_mask]
 	movdqu	xmm2,XMMWORD PTR[rdx]
@@ -868,7 +875,7 @@ PUBLIC	gcm_ghash_clmul
 
 ALIGN	16
 gcm_ghash_clmul	PROC PUBLIC
-	endbr64
+
 $L$SEH_begin_gcm_ghash_clmul::
 
 DB	048h,083h,0ech,058h		
@@ -1086,7 +1093,7 @@ DB	102,15,56,0,197
 $L$SEH_end_gcm_ghash_clmul::
 gcm_ghash_clmul	ENDP
 .text$	ENDS
-.rdata	SEGMENT READONLY ALIGN(8)
+.rdata	SEGMENT READONLY ALIGN(64)
 ALIGN	64
 $L$bswap_mask::
 DB	15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
@@ -1140,7 +1147,7 @@ EXTERN	__imp_RtlVirtualUnwind:NEAR
 
 ALIGN	16
 se_handler	PROC PRIVATE
-	endbr64
+
 	push	rsi
 	push	rdi
 	push	rbx

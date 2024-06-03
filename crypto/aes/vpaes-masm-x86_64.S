@@ -1,26 +1,33 @@
 ; 1 "crypto/aes/vpaes-masm-x86_64.S.tmp"
 ; 1 "<built-in>" 1
 ; 1 "<built-in>" 3
-; 343 "<built-in>" 3
+; 371 "<built-in>" 3
 ; 1 "<command line>" 1
 ; 1 "<built-in>" 2
 ; 1 "crypto/aes/vpaes-masm-x86_64.S.tmp" 2
 OPTION	DOTNAME
 
+
+
+
+
+
+
 ; 1 "./crypto/x86_arch.h" 1
 
 
 ; 16 "./crypto/x86_arch.h"
+   
 
 
 
 
 
-
-
+   
 
 
 ; 40 "./crypto/x86_arch.h"
+   
 
 
 
@@ -65,8 +72,7 @@ OPTION	DOTNAME
 
 
 
-
-; 3 "crypto/aes/vpaes-masm-x86_64.S.tmp" 2
+; 9 "crypto/aes/vpaes-masm-x86_64.S.tmp" 2
 .text$	SEGMENT ALIGN(64) 'CODE'
 
 
@@ -87,7 +93,7 @@ OPTION	DOTNAME
 
 ALIGN	16
 _vpaes_encrypt_core	PROC PRIVATE
-	endbr64
+
 	mov	r9,rdx
 	mov	r11,16
 	mov	eax,DWORD PTR[240+rdx]
@@ -178,7 +184,7 @@ _vpaes_encrypt_core	ENDP
 
 ALIGN	16
 _vpaes_decrypt_core	PROC PRIVATE
-	endbr64
+
 	mov	r9,rdx
 	mov	eax,DWORD PTR[240+rdx]
 	movdqa	xmm1,xmm9
@@ -286,7 +292,7 @@ _vpaes_decrypt_core	ENDP
 
 ALIGN	16
 _vpaes_schedule_core	PROC PRIVATE
-	endbr64
+
 
 
 
@@ -472,7 +478,7 @@ _vpaes_schedule_core	ENDP
 
 ALIGN	16
 _vpaes_schedule_192_smear	PROC PRIVATE
-	endbr64
+
 	pshufd	xmm0,xmm6,080h
 	pxor	xmm6,xmm0
 	pshufd	xmm0,xmm7,0FEh
@@ -504,7 +510,7 @@ _vpaes_schedule_192_smear	ENDP
 
 ALIGN	16
 _vpaes_schedule_round	PROC PRIVATE
-	endbr64
+
 
 	pxor	xmm1,xmm1
 DB	102,65,15,58,15,200,15
@@ -572,7 +578,7 @@ _vpaes_schedule_round	ENDP
 
 ALIGN	16
 _vpaes_schedule_transform	PROC PRIVATE
-	endbr64
+
 	movdqa	xmm1,xmm9
 	pandn	xmm1,xmm0
 	psrld	xmm1,4
@@ -611,7 +617,7 @@ _vpaes_schedule_transform	ENDP
 
 ALIGN	16
 _vpaes_schedule_mangle	PROC PRIVATE
-	endbr64
+
 	movdqa	xmm4,xmm0
 	movdqa	xmm5,XMMWORD PTR[$L$k_mc_forward]
 	test	rcx,rcx
@@ -694,7 +700,7 @@ $L$SEH_begin_vpaes_set_encrypt_key::
 	mov	rdx,r8
 
 
-	endbr64
+
 	lea	rsp,QWORD PTR[((-184))+rsp]
 	movaps	XMMWORD PTR[16+rsp],xmm6
 	movaps	XMMWORD PTR[32+rsp],xmm7
@@ -747,7 +753,7 @@ $L$SEH_begin_vpaes_set_decrypt_key::
 	mov	rdx,r8
 
 
-	endbr64
+
 	lea	rsp,QWORD PTR[((-184))+rsp]
 	movaps	XMMWORD PTR[16+rsp],xmm6
 	movaps	XMMWORD PTR[32+rsp],xmm7
@@ -805,7 +811,7 @@ $L$SEH_begin_vpaes_encrypt::
 	mov	rdx,r8
 
 
-	endbr64
+
 	lea	rsp,QWORD PTR[((-184))+rsp]
 	movaps	XMMWORD PTR[16+rsp],xmm6
 	movaps	XMMWORD PTR[32+rsp],xmm7
@@ -853,7 +859,7 @@ $L$SEH_begin_vpaes_decrypt::
 	mov	rdx,r8
 
 
-	endbr64
+
 	lea	rsp,QWORD PTR[((-184))+rsp]
 	movaps	XMMWORD PTR[16+rsp],xmm6
 	movaps	XMMWORD PTR[32+rsp],xmm7
@@ -903,7 +909,7 @@ $L$SEH_begin_vpaes_cbc_encrypt::
 	mov	r9,QWORD PTR[48+rsp]
 
 
-	endbr64
+
 	xchg	rdx,rcx
 	sub	rcx,16
 	jc	$L$cbc_abort
@@ -976,7 +982,7 @@ vpaes_cbc_encrypt	ENDP
 
 ALIGN	16
 _vpaes_preheat	PROC PRIVATE
-	endbr64
+
 	lea	r10,QWORD PTR[$L$k_s0F]
 	movdqa	xmm10,XMMWORD PTR[((-32))+r10]
 	movdqa	xmm11,XMMWORD PTR[((-16))+r10]
@@ -993,7 +999,7 @@ _vpaes_preheat	ENDP
 
 
 .text$	ENDS
-.rdata	SEGMENT READONLY ALIGN(8)
+.rdata	SEGMENT READONLY ALIGN(64)
 
 ALIGN	64
 _vpaes_consts::
@@ -1098,7 +1104,7 @@ EXTERN	__imp_RtlVirtualUnwind:NEAR
 
 ALIGN	16
 se_handler	PROC PRIVATE
-	endbr64
+
 	push	rsi
 	push	rdi
 	push	rbx

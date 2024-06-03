@@ -1,26 +1,33 @@
 ; 1 "crypto/camellia/cmll-masm-x86_64.S.tmp"
 ; 1 "<built-in>" 1
 ; 1 "<built-in>" 3
-; 343 "<built-in>" 3
+; 371 "<built-in>" 3
 ; 1 "<command line>" 1
 ; 1 "<built-in>" 2
 ; 1 "crypto/camellia/cmll-masm-x86_64.S.tmp" 2
 OPTION	DOTNAME
 
+
+
+
+
+
+
 ; 1 "./crypto/x86_arch.h" 1
 
 
 ; 16 "./crypto/x86_arch.h"
+   
 
 
 
 
 
-
-
+   
 
 
 ; 40 "./crypto/x86_arch.h"
+   
 
 
 
@@ -65,8 +72,7 @@ OPTION	DOTNAME
 
 
 
-
-; 3 "crypto/camellia/cmll-masm-x86_64.S.tmp" 2
+; 9 "crypto/camellia/cmll-masm-x86_64.S.tmp" 2
 .text$	SEGMENT ALIGN(64) 'CODE'
 
 
@@ -74,7 +80,7 @@ PUBLIC	Camellia_EncryptBlock
 
 ALIGN	16
 Camellia_EncryptBlock	PROC PUBLIC
-	endbr64
+
 	mov	eax,128
 	sub	eax,edi
 	mov	edi,3
@@ -97,7 +103,7 @@ $L$SEH_begin_Camellia_EncryptBlock_Rounds::
 	mov	rcx,r9
 
 
-	endbr64
+
 	push	rbx
 	push	rbp
 	push	r13
@@ -149,7 +155,7 @@ Camellia_EncryptBlock_Rounds	ENDP
 
 ALIGN	16
 _x86_64_Camellia_encrypt	PROC PRIVATE
-	endbr64
+
 	xor	r9d,DWORD PTR[r14]
 	xor	r8d,DWORD PTR[4+r14]
 	xor	r11d,DWORD PTR[8+r14]
@@ -359,7 +365,7 @@ PUBLIC	Camellia_DecryptBlock
 
 ALIGN	16
 Camellia_DecryptBlock	PROC PUBLIC
-	endbr64
+
 	mov	eax,128
 	sub	eax,edi
 	mov	edi,3
@@ -382,7 +388,7 @@ $L$SEH_begin_Camellia_DecryptBlock_Rounds::
 	mov	rcx,r9
 
 
-	endbr64
+
 	push	rbx
 	push	rbp
 	push	r13
@@ -434,7 +440,7 @@ Camellia_DecryptBlock_Rounds	ENDP
 
 ALIGN	16
 _x86_64_Camellia_decrypt	PROC PRIVATE
-	endbr64
+
 	xor	r9d,DWORD PTR[r14]
 	xor	r8d,DWORD PTR[4+r14]
 	xor	r11d,DWORD PTR[8+r14]
@@ -652,7 +658,7 @@ $L$SEH_begin_Camellia_Ekeygen::
 	mov	rdx,r8
 
 
-	endbr64
+
 	push	rbx
 	push	rbp
 	push	r13
@@ -1197,7 +1203,7 @@ $L$key_epilogue::
 $L$SEH_end_Camellia_Ekeygen::
 Camellia_Ekeygen	ENDP
 .text$	ENDS
-.rdata	SEGMENT READONLY ALIGN(8)
+.rdata	SEGMENT READONLY ALIGN(64)
 ALIGN	64
 $L$Camellia_SIGMA::
 	DD	03bcc908bh,0a09e667fh,04caa73b2h,0b67ae858h
@@ -1735,7 +1741,7 @@ $L$SEH_begin_Camellia_cbc_encrypt::
 	mov	r9,QWORD PTR[48+rsp]
 
 
-	endbr64
+
 	cmp	rdx,0
 	je	$L$cbc_abort
 	push	rbx

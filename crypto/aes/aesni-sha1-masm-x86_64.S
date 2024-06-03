@@ -1,26 +1,33 @@
 ; 1 "crypto/aes/aesni-sha1-masm-x86_64.S.tmp"
 ; 1 "<built-in>" 1
 ; 1 "<built-in>" 3
-; 343 "<built-in>" 3
+; 371 "<built-in>" 3
 ; 1 "<command line>" 1
 ; 1 "<built-in>" 2
 ; 1 "crypto/aes/aesni-sha1-masm-x86_64.S.tmp" 2
 OPTION	DOTNAME
 
+
+
+
+
+
+
 ; 1 "./crypto/x86_arch.h" 1
 
 
 ; 16 "./crypto/x86_arch.h"
+   
 
 
 
 
 
-
-
+   
 
 
 ; 40 "./crypto/x86_arch.h"
+   
 
 
 
@@ -65,8 +72,7 @@ OPTION	DOTNAME
 
 
 
-
-; 3 "crypto/aes/aesni-sha1-masm-x86_64.S.tmp" 2
+; 9 "crypto/aes/aesni-sha1-masm-x86_64.S.tmp" 2
 .text$	SEGMENT ALIGN(64) 'CODE'
 EXTERN	OPENSSL_ia32cap_P:NEAR
 
@@ -75,7 +81,7 @@ PUBLIC	aesni_cbc_sha1_enc
 
 ALIGN	16
 aesni_cbc_sha1_enc	PROC PUBLIC
-	endbr64
+
 
 	mov	r10d,DWORD PTR[((OPENSSL_ia32cap_P+0))]
 	mov	r11d,DWORD PTR[((OPENSSL_ia32cap_P+4))]
@@ -97,7 +103,7 @@ $L$SEH_begin_aesni_cbc_sha1_enc_ssse3::
 	mov	r9,QWORD PTR[48+rsp]
 
 
-	endbr64
+
 	mov	r10,QWORD PTR[56+rsp]
 
 
@@ -1493,7 +1499,7 @@ $L$epilogue_ssse3::
 $L$SEH_end_aesni_cbc_sha1_enc_ssse3::
 aesni_cbc_sha1_enc_ssse3	ENDP
 .text$	ENDS
-.rdata	SEGMENT READONLY ALIGN(8)
+.rdata	SEGMENT READONLY ALIGN(64)
 ALIGN	64
 K_XX_XX::
 	DD	05a827999h,05a827999h,05a827999h,05a827999h	
@@ -1508,7 +1514,7 @@ EXTERN	__imp_RtlVirtualUnwind:NEAR
 
 ALIGN	16
 ssse3_handler	PROC PRIVATE
-	endbr64
+
 	push	rsi
 	push	rdi
 	push	rbx

@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_vfy.h,v 1.4 2023/04/25 18:32:42 tb Exp $ */
+/* $OpenBSD: x509_vfy.h,v 1.9 2024/03/02 10:57:03 tb Exp $ */
 /*
  * Copyright (c) 2022 Bob Beck <beck@openbsd.org>
  *
@@ -18,10 +18,10 @@
 #ifndef _LIBCRYPTO_X509_VFY_H
 #define _LIBCRYPTO_X509_VFY_H
 
-#ifdef _MSC_VER
-#include <../include/openssl/x509_vfy.h>
-#else
+#ifndef _MSC_VER
 #include_next <openssl/x509_vfy.h>
+#else
+#include "../include/openssl/x509_vfy.h"
 #endif
 #include "crypto_namespace.h"
 
@@ -40,6 +40,7 @@ LCRYPTO_USED(X509_STORE_new);
 LCRYPTO_USED(X509_STORE_free);
 LCRYPTO_USED(X509_STORE_up_ref);
 LCRYPTO_USED(X509_STORE_get0_objects);
+LCRYPTO_USED(X509_STORE_get1_objects);
 LCRYPTO_USED(X509_STORE_get_ex_data);
 LCRYPTO_USED(X509_STORE_set_ex_data);
 LCRYPTO_USED(X509_STORE_set_flags);
@@ -78,14 +79,7 @@ LCRYPTO_USED(X509_LOOKUP_ctrl);
 LCRYPTO_USED(X509_load_cert_file);
 LCRYPTO_USED(X509_load_crl_file);
 LCRYPTO_USED(X509_load_cert_crl_file);
-LCRYPTO_USED(X509_LOOKUP_new);
 LCRYPTO_USED(X509_LOOKUP_free);
-LCRYPTO_USED(X509_LOOKUP_init);
-LCRYPTO_USED(X509_LOOKUP_by_subject);
-LCRYPTO_USED(X509_LOOKUP_by_issuer_serial);
-LCRYPTO_USED(X509_LOOKUP_by_fingerprint);
-LCRYPTO_USED(X509_LOOKUP_by_alias);
-LCRYPTO_USED(X509_LOOKUP_shutdown);
 LCRYPTO_USED(X509_STORE_load_locations);
 LCRYPTO_USED(X509_STORE_load_mem);
 LCRYPTO_USED(X509_STORE_set_default_paths);
@@ -108,7 +102,6 @@ LCRYPTO_USED(X509_STORE_CTX_set_chain);
 LCRYPTO_USED(X509_STORE_CTX_set0_crls);
 LCRYPTO_USED(X509_STORE_CTX_set_purpose);
 LCRYPTO_USED(X509_STORE_CTX_set_trust);
-LCRYPTO_USED(X509_STORE_CTX_purpose_inherit);
 LCRYPTO_USED(X509_STORE_CTX_set_flags);
 LCRYPTO_USED(X509_STORE_CTX_set_time);
 LCRYPTO_USED(X509_STORE_CTX_set0_verified_chain);
@@ -152,16 +145,5 @@ LCRYPTO_USED(X509_VERIFY_PARAM_get_count);
 LCRYPTO_USED(X509_VERIFY_PARAM_add0_table);
 LCRYPTO_USED(X509_VERIFY_PARAM_lookup);
 LCRYPTO_USED(X509_VERIFY_PARAM_table_cleanup);
-LCRYPTO_USED(X509_policy_check);
-LCRYPTO_USED(X509_policy_tree_free);
-LCRYPTO_USED(X509_policy_tree_level_count);
-LCRYPTO_USED(X509_policy_tree_get0_level);
-LCRYPTO_USED(X509_policy_tree_get0_policies);
-LCRYPTO_USED(X509_policy_tree_get0_user_policies);
-LCRYPTO_USED(X509_policy_level_node_count);
-LCRYPTO_USED(X509_policy_level_get0_node);
-LCRYPTO_USED(X509_policy_node_get0_policy);
-LCRYPTO_USED(X509_policy_node_get0_qualifiers);
-LCRYPTO_USED(X509_policy_node_get0_parent);
 
 #endif /* _LIBCRYPTO_X509_VFY_H */
